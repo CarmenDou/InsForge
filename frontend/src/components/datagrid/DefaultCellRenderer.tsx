@@ -14,7 +14,13 @@ function createDefaultCellRenderer<TRow extends DataGridRowType>() {
       const displayValue = formatValueForDisplay(value, ColumnType.STRING);
       return (
         <div className="w-full h-full flex items-center">
-          <span className={cn('truncate', isNull ? 'text-muted-foreground italic pr-1' : 'dark:text-zinc-300')}title={displayValue}>
+          <span
+            className={cn(
+              'truncate',
+              isNull ? 'text-muted-foreground italic pr-1' : 'dark:text-zinc-300'
+            )}
+            title={displayValue}
+          >
             {displayValue}
           </span>
         </div>
@@ -29,7 +35,10 @@ function createDefaultCellRenderer<TRow extends DataGridRowType>() {
         <div className="w-full h-full flex items-center justify-start">
           <Badge
             variant={isNull ? 'secondary' : value ? 'default' : 'secondary'}
-            className={cn('py-0.5 px-1.5 border border-transparent', isNull && 'text-muted-foreground italic')}
+            className={cn(
+              'py-0.5 px-1.5 border border-transparent',
+              isNull && 'text-muted-foreground italic'
+            )}
           >
             {displayValue}
           </Badge>
@@ -46,7 +55,14 @@ function createDefaultCellRenderer<TRow extends DataGridRowType>() {
       return (
         <div className="w-full h-full flex items-center">
           <span
-            className={cn('truncate', isNull ? 'text-muted-foreground italic pr-1' : isError ? 'text-red-500' : 'text-black dark:text-zinc-300')}
+            className={cn(
+              'truncate',
+              isNull
+                ? 'text-muted-foreground italic pr-1'
+                : isError
+                  ? 'text-red-500'
+                  : 'text-black dark:text-zinc-300'
+            )}
             title={displayValue}
           >
             {displayValue}
@@ -64,7 +80,14 @@ function createDefaultCellRenderer<TRow extends DataGridRowType>() {
       return (
         <div className="w-full h-full flex items-center">
           <span
-            className={cn('truncate', isNull ? 'text-muted-foreground italic pr-1' : isError ? 'text-red-500' : 'text-black dark:text-zinc-300')}
+            className={cn(
+              'truncate',
+              isNull
+                ? 'text-muted-foreground italic pr-1'
+                : isError
+                  ? 'text-red-500'
+                  : 'text-black dark:text-zinc-300'
+            )}
             title={displayValue}
           >
             {displayValue}
@@ -110,7 +133,12 @@ function createDefaultCellRenderer<TRow extends DataGridRowType>() {
       const displayValue = formatValueForDisplay(value, ColumnType.STRING);
       return (
         <span
-          className={cn('text-sm truncate', isNull ? 'text-muted-foreground italic pr-1' : 'text-gray-800 font-medium dark:text-zinc-300')}
+          className={cn(
+            'text-sm truncate',
+            isNull
+              ? 'text-muted-foreground italic pr-1'
+              : 'text-gray-800 font-medium dark:text-zinc-300'
+          )}
           title={displayValue}
         >
           {displayValue}
