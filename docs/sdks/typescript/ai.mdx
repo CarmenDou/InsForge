@@ -28,6 +28,14 @@ Create AI chat completions with streaming support, web search, file parsing, and
   - `enabled` (boolean) - Enable file parsing
   - `pdf` (object, optional) - PDF processing options
     - `engine` ('pdf-text' | 'mistral-ocr' | 'native', optional) - Processing engine. Defaults to native if supported, otherwise mistral-ocr
+- `tools` (array, optional) - Array of tool definitions for function calling
+  - `type` ('function') - Tool type
+  - `function` (object) - Function definition
+    - `name` (string) - Function name
+    - `description` (string, optional) - Description of what the function does
+    - `parameters` (object, optional) - JSON Schema of the function parameters
+- `tool_choice` (string | object, optional) - Controls tool usage: `'auto'`, `'none'`, `'required'`, or `{ type: 'function', function: { name: string } }`
+- `parallel_tool_calls` (boolean, optional) - Allow the model to call multiple tools in parallel
 
 <Note>
 File URLs must be publicly accessible. Storage buckets must be public, or use base64 for private files.
@@ -46,7 +54,8 @@ File URLs must be publicly accessible. Storage buckets must be public, or use ba
     message: {
       role: "assistant",
       content: string,
-      annotations?: UrlCitationAnnotation[]  // Present when web search is used
+      tool_calls?: ToolCall[],                // Present when the model invokes tools
+      annotations?: UrlCitationAnnotation[]   // Present when web search is used
     },
     finish_reason: string
   }],
@@ -152,6 +161,62 @@ for await (const chunk of stream) {
   if (chunk.choices[0]?.delta?.content) {
     process.stdout.write(chunk.choices[0].delta.content);
   }
+}
+```
+
+### Example (Tool Calling)
+
+```typescript
+// Step 1: Define tools and send initial request
+const completion = await insforge.ai.chat.completions.create({
+  model: 'openai/gpt-4',
+  messages: [
+    { role: 'user', content: 'What is the status of order #12345?' }
+  ],
+  tools: [
+    {
+      type: 'function',
+      function: {
+        name: 'get_order_status',
+        description: 'Look up the status of an order by ID',
+        parameters: {
+          type: 'object',
+          properties: {
+            order_id: { type: 'string', description: 'The order ID' }
+          },
+          required: ['order_id']
+        }
+      }
+    }
+  ],
+});
+
+// Step 2: Check if the model wants to call a tool
+const message = completion.choices[0].message;
+
+if (message.tool_calls) {
+  const toolCall = message.tool_calls[0];
+  const args = JSON.parse(toolCall.function.arguments);
+
+  // Execute your function
+  const orderStatus = await getOrderStatus(args.order_id);
+
+  // Step 3: Send the tool result back
+  const finalResponse = await insforge.ai.chat.completions.create({
+    model: 'openai/gpt-4',
+    messages: [
+      { role: 'user', content: 'What is the status of order #12345?' },
+      { role: 'assistant', content: null, tool_calls: message.tool_calls },
+      {
+        role: 'tool',
+        content: JSON.stringify(orderStatus),
+        tool_call_id: toolCall.id,
+      },
+    ],
+  });
+
+  console.log(finalResponse.choices[0].message.content);
+  // "Order #12345 is currently being shipped and will arrive on Friday."
 }
 ```
 

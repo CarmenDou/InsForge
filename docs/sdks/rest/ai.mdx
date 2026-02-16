@@ -110,13 +110,18 @@ POST /api/ai/chat/completion
 | `maxTokens` | integer | No | Maximum tokens to generate |
 | `topP` | number | No | Nucleus sampling parameter (0-1) |
 | `systemPrompt` | string | No | System prompt to guide behavior |
+| `tools` | array | No | Tool definitions for function calling |
+| `tool_choice` | string/object | No | Tool usage control: `auto`, `none`, `required`, or specific function |
+| `parallel_tool_calls` | boolean | No | Allow parallel tool invocations |
 
 ### Message Format
 
 ```json
 {
-  "role": "user|assistant|system",
-  "content": "message text"
+  "role": "user|assistant|system|tool",
+  "content": "message text",
+  "tool_calls": [],       // assistant messages: tool calls from the model
+  "tool_call_id": ""      // tool messages: ID of the tool call being responded to
 }
 ```
 
@@ -180,6 +185,81 @@ curl -X POST "https://your-app.insforge.app/api/ai/chat/completion" \
       {"role": "user", "content": "What is Kotlin?"},
       {"role": "assistant", "content": "Kotlin is a modern programming language..."},
       {"role": "user", "content": "What are its main features?"}
+    ]
+  }'
+```
+
+### Example (Tool Calling)
+
+```bash
+curl -X POST "https://your-app.insforge.app/api/ai/chat/completion" \
+  -H "Authorization: Bearer your-jwt-token-or-anon-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "openai/gpt-4",
+    "messages": [
+      {"role": "user", "content": "What is the status of order #12345?"}
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "get_order_status",
+          "description": "Look up the status of an order by ID",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "order_id": {"type": "string", "description": "The order ID"}
+            },
+            "required": ["order_id"]
+          }
+        }
+      }
+    ]
+  }'
+```
+
+### Response (Tool Call)
+
+When the model decides to call a tool, the response includes `tool_calls`:
+
+```json
+{
+  "success": true,
+  "text": "",
+  "tool_calls": [
+    {
+      "id": "call_abc123",
+      "type": "function",
+      "function": {
+        "name": "get_order_status",
+        "arguments": "{\"order_id\": \"12345\"}"
+      }
+    }
+  ],
+  "metadata": {
+    "model": "openai/gpt-4",
+    "usage": {
+      "promptTokens": 85,
+      "completionTokens": 24,
+      "totalTokens": 109
+    }
+  }
+}
+```
+
+Send the tool result back to get the final response:
+
+```bash
+curl -X POST "https://your-app.insforge.app/api/ai/chat/completion" \
+  -H "Authorization: Bearer your-jwt-token-or-anon-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "openai/gpt-4",
+    "messages": [
+      {"role": "user", "content": "What is the status of order #12345?"},
+      {"role": "assistant", "content": null, "tool_calls": [{"id": "call_abc123", "type": "function", "function": {"name": "get_order_status", "arguments": "{\"order_id\": \"12345\"}"}}]},
+      {"role": "tool", "content": "{\"status\": \"shipped\", \"eta\": \"Friday\"}", "tool_call_id": "call_abc123"}
     ]
   }'
 ```
