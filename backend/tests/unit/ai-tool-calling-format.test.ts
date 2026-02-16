@@ -16,6 +16,7 @@ vi.mock('../../src/utils/logger.js', () => ({
 }));
 
 describe('ChatCompletionService - formatMessages', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let service: any;
 
   beforeEach(async () => {
