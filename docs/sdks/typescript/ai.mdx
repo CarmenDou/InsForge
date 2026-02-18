@@ -169,7 +169,7 @@ for await (const chunk of stream) {
 ```typescript
 // Step 1: Define tools and send initial request
 const completion = await insforge.ai.chat.completions.create({
-  model: 'openai/gpt-4',
+  model: 'openai/gpt-4o-mini',
   messages: [
     { role: 'user', content: 'What is the status of order #12345?' }
   ],
@@ -203,7 +203,7 @@ if (message.tool_calls) {
 
   // Step 3: Send the tool result back
   const finalResponse = await insforge.ai.chat.completions.create({
-    model: 'openai/gpt-4',
+    model: 'openai/gpt-4o-mini',
     messages: [
       { role: 'user', content: 'What is the status of order #12345?' },
       { role: 'assistant', content: null, tool_calls: message.tool_calls },

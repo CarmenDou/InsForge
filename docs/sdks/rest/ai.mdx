@@ -196,7 +196,7 @@ curl -X POST "https://your-app.insforge.app/api/ai/chat/completion" \
   -H "Authorization: Bearer your-jwt-token-or-anon-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "openai/gpt-4",
+    "model": "openai/gpt-4o-mini",
     "messages": [
       {"role": "user", "content": "What is the status of order #12345?"}
     ],
@@ -238,7 +238,7 @@ When the model decides to call a tool, the response includes `tool_calls`:
     }
   ],
   "metadata": {
-    "model": "openai/gpt-4",
+    "model": "openai/gpt-4o-mini",
     "usage": {
       "promptTokens": 85,
       "completionTokens": 24,
@@ -255,7 +255,7 @@ curl -X POST "https://your-app.insforge.app/api/ai/chat/completion" \
   -H "Authorization: Bearer your-jwt-token-or-anon-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "openai/gpt-4",
+    "model": "openai/gpt-4o-mini",
     "messages": [
       {"role": "user", "content": "What is the status of order #12345?"},
       {"role": "assistant", "content": null, "tool_calls": [{"id": "call_abc123", "type": "function", "function": {"name": "get_order_status", "arguments": "{\"order_id\": \"12345\"}"}}]},
