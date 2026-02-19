@@ -198,20 +198,20 @@ curl -X POST "https://your-app.insforge.app/api/ai/chat/completion" \
   -d '{
     "model": "openai/gpt-4o-mini",
     "messages": [
-      {"role": "user", "content": "What is the status of order #12345?"}
+      {"role": "user", "content": "Your prompt here"}
     ],
     "tools": [
       {
         "type": "function",
         "function": {
-          "name": "get_order_status",
-          "description": "Look up the status of an order by ID",
+          "name": "your_function_name",
+          "description": "Describe what your function does",
           "parameters": {
             "type": "object",
             "properties": {
-              "order_id": {"type": "string", "description": "The order ID"}
+              "param1": {"type": "string", "description": "First parameter"}
             },
-            "required": ["order_id"]
+            "required": ["param1"]
           }
         }
       }
@@ -232,8 +232,8 @@ When the model decides to call a tool, the response includes `tool_calls`:
       "id": "call_abc123",
       "type": "function",
       "function": {
-        "name": "get_order_status",
-        "arguments": "{\"order_id\": \"12345\"}"
+        "name": "your_function_name",
+        "arguments": "{\"param1\": \"value1\"}"
       }
     }
   ],
@@ -246,22 +246,6 @@ When the model decides to call a tool, the response includes `tool_calls`:
     }
   }
 }
-```
-
-Send the tool result back to get the final response:
-
-```bash
-curl -X POST "https://your-app.insforge.app/api/ai/chat/completion" \
-  -H "Authorization: Bearer your-jwt-token-or-anon-key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "openai/gpt-4o-mini",
-    "messages": [
-      {"role": "user", "content": "What is the status of order #12345?"},
-      {"role": "assistant", "content": null, "tool_calls": [{"id": "call_abc123", "type": "function", "function": {"name": "get_order_status", "arguments": "{\"order_id\": \"12345\"}"}}]},
-      {"role": "tool", "content": "{\"status\": \"shipped\", \"eta\": \"Friday\"}", "tool_call_id": "call_abc123"}
-    ]
-  }'
 ```
 
 ---

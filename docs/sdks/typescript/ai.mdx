@@ -167,57 +167,26 @@ for await (const chunk of stream) {
 ### Example (Tool Calling)
 
 ```typescript
-// Step 1: Define tools and send initial request
+// Define tools and send initial request
 const completion = await insforge.ai.chat.completions.create({
   model: 'openai/gpt-4o-mini',
-  messages: [
-    { role: 'user', content: 'What is the status of order #12345?' }
-  ],
-  tools: [
-    {
-      type: 'function',
-      function: {
-        name: 'get_order_status',
-        description: 'Look up the status of an order by ID',
-        parameters: {
-          type: 'object',
-          properties: {
-            order_id: { type: 'string', description: 'The order ID' }
-          },
-          required: ['order_id']
-        }
+  messages: [{ role: 'user', content: 'Your prompt here' }],
+  tools: [{
+    type: 'function',
+    function: {
+      name: 'your_function_name',
+      description: 'Describe what your function does',
+      parameters: {
+        type: 'object',
+        properties: {
+          param1: { type: 'string', description: 'First parameter' }
+        },
+        required: ['param1']
       }
     }
-  ],
+  }],
 });
 
-// Step 2: Check if the model wants to call a tool
-const message = completion.choices[0].message;
-
-if (message.tool_calls) {
-  const toolCall = message.tool_calls[0];
-  const args = JSON.parse(toolCall.function.arguments);
-
-  // Execute your function
-  const orderStatus = await getOrderStatus(args.order_id);
-
-  // Step 3: Send the tool result back
-  const finalResponse = await insforge.ai.chat.completions.create({
-    model: 'openai/gpt-4o-mini',
-    messages: [
-      { role: 'user', content: 'What is the status of order #12345?' },
-      { role: 'assistant', content: null, tool_calls: message.tool_calls },
-      {
-        role: 'tool',
-        content: JSON.stringify(orderStatus),
-        tool_call_id: toolCall.id,
-      },
-    ],
-  });
-
-  console.log(finalResponse.choices[0].message.content);
-  // "Order #12345 is currently being shipped and will arrive on Friday."
-}
 ```
 
 ---
