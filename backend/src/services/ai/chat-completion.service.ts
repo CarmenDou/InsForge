@@ -94,12 +94,12 @@ export class ChatCompletionService {
       // Handle tool response messages
       if (msg.role === 'tool') {
         if (!msg.tool_call_id) {
-          logger.warn('Tool message is missing tool_call_id, which is required by the OpenAI API');
+          throw new Error('Tool message is missing required tool_call_id');
         }
         formattedMessages.push({
           role: 'tool',
           content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
-          tool_call_id: msg.tool_call_id ?? '',
+          tool_call_id: msg.tool_call_id,
         } as OpenAI.Chat.ChatCompletionToolMessageParam);
         continue;
       }

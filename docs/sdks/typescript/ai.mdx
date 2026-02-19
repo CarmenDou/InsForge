@@ -61,6 +61,25 @@ File URLs must be publicly accessible. Storage buckets must be public, or use ba
   }],
   usage: { prompt_tokens: number, completion_tokens: number, total_tokens: number }
 }
+
+// ToolCall type
+interface ToolCall {
+  id: string;
+  type: 'function';
+  function: { name: string; arguments: string };
+}
+
+// UrlCitationAnnotation type
+interface UrlCitationAnnotation {
+  type: 'url_citation';
+  urlCitation: {
+    url: string;
+    title?: string;
+    content?: string;
+    startIndex?: number;
+    endIndex?: number;
+  };
+}
 ```
 
 ### Returns (streaming)
@@ -71,7 +90,10 @@ AsyncIterableIterator<{
   object: 'chat.completion.chunk';
   choices: [
     {
-      delta: { content: string };
+      delta: {
+        content: string;
+        tool_calls?: ToolCall[];   // Present in the final chunk when tools are used
+      };
       finish_reason: string | null;
     },
   ];
@@ -167,7 +189,6 @@ for await (const chunk of stream) {
 ### Example (Tool Calling)
 
 ```typescript
-// Define tools and send initial request
 const completion = await insforge.ai.chat.completions.create({
   model: 'openai/gpt-4o-mini',
   messages: [{ role: 'user', content: 'Your prompt here' }],

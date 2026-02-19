@@ -96,7 +96,7 @@ router.post(
             stack: streamError instanceof Error ? streamError.stack : undefined,
           });
           res.write(
-            `data: ${JSON.stringify({ error: true, meesage: streamError instanceof Error ? streamError.message : String(streamError) })}\n\n`
+            `data: ${JSON.stringify({ error: true, message: streamError instanceof Error ? streamError.message : String(streamError) })}\n\n`
           );
         }
 
